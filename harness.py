@@ -255,6 +255,36 @@ def _local_imports():
         _shadowed_now = None
 
 
+def _reset_logging():
+    """Each run starts with logging as a new Python would have it.
+
+    logging.basicConfig() only works when the root logger has no handlers, and
+    its handlers remember the stream they were given. Python lives on between
+    runs here, so without this a second run's log lines would go to the first
+    run's output, and a log file would stay open while the folder is emptied.
+    """
+    logging = sys.modules.get("logging")
+    if logging is None:
+        return
+    loggers = [logging.getLogger()] + [lg for lg in logging.Logger.manager.loggerDict.values()
+                                       if isinstance(lg, logging.Logger)]
+    for logger in loggers:
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+            handler.close()
+        logger.setLevel(logging.NOTSET)
+        logger.propagate = True
+        logger.disabled = False
+    logging.getLogger().setLevel(logging.WARNING)
+    logging.disable(logging.NOTSET)
+
+
+def _breakpoint_here(*args, **kwargs):
+    # pdb waits for typed commands, which this page cannot give it.
+    print("breakpoint() pauses the program only on a laptop. Here, use Step-through to watch each line.",
+          file=sys.stderr)
+
+
 def _fresh_folder(files=None):
     """Each run starts in an empty folder, so file exercises behave the same every time.
 
@@ -432,7 +462,8 @@ class _Session:
     def guarded(self, on_event=None):
         global _active_session
         saved = sys.stdout, sys.stderr, builtins.input, builtins.__import__, _active_session
-        saved_main, saved_argv = sys.modules.get("__main__"), sys.argv
+        saved_main, saved_argv, saved_hook = sys.modules.get("__main__"), sys.argv, sys.breakpointhook
+        sys.breakpointhook = _breakpoint_here
         sys.stdout = _Stream(self, "out")
         sys.stderr = _Stream(self, "err")
         builtins.input = self._input
@@ -453,6 +484,7 @@ class _Session:
             local_imports.__exit__(None, None, None)
             sys.stdout, sys.stderr, builtins.input, builtins.__import__, _active_session = saved
             sys.argv = saved_argv
+            sys.breakpointhook = saved_hook
             if saved_main is None:
                 sys.modules.pop("__main__", None)
             else:
@@ -466,6 +498,8 @@ class _Session:
         so each one is caught, described, and handed back to the page.
         """
         if fresh:
+            # Close the last run's log files before the folder is emptied.
+            _reset_logging()
             # Before compiling: a typing mistake must still leave this program's
             # own files in the folder, because the page saves whatever is there.
             _fresh_folder(files)
@@ -1791,6 +1825,7 @@ _shells = {}
 def shell(source, shell_id, reset=False):
     if reset or shell_id not in _shells:
         _shells[shell_id] = {"__name__": "__main__", "__builtins__": builtins}
+        _reset_logging()
         _fresh_folder()
         if reset:
             return {"status": "reset"}

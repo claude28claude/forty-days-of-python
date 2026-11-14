@@ -1,6 +1,6 @@
 # Forty Days of Python
 
-A free Python course for complete beginners: 40 short daily lessons, then 90 more days going further (130 days in all): a capstone program, then the tools professionals use (databases, proper tests, command-line tools), ending with a tested final project and a grand final exam.
+A free Python course for complete beginners: 40 short daily lessons, then 100 more days going further (140 days in all): a capstone program, then the tools professionals use (databases, proper tests, command-line tools, logging, web data, venv and git), with a tested final project, a grand final exam, and a last project, the Expense Command Centre.
 
 **Start learning:** https://claude28claude.github.io/forty-days-of-python/
 
