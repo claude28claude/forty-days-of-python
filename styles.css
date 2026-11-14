@@ -135,6 +135,7 @@ code {
   border-radius: 6px;
   padding: 0.05em 0.35em;
   white-space: pre-wrap;
+  overflow-wrap: anywhere; /* long code inside a sentence wraps instead of pushing past the card */
   font-variant-ligatures: none;
 }
 
@@ -978,10 +979,11 @@ main { padding: 32px 24px 80px; margin: 0 auto; }
 .gap:focus { background: var(--yellow-soft); }
 
 /* Bug Clinic: tap the faulty line */
-.bug-lines { display: grid; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--code-bg); }
+/* Long lines: the whole block scrolls sideways as one, so indentation stays true. */
+.bug-lines { display: grid; grid-template-columns: minmax(100%, max-content); border: 1px solid var(--line); border-radius: 12px; overflow-x: auto; overflow-y: hidden; background: var(--code-bg); }
 .bug-line {
   display: grid;
-  grid-template-columns: 2.8em minmax(0, 1fr);
+  grid-template-columns: 2.8em auto;
   align-items: center;
   min-height: 40px;
   padding: 0;
@@ -997,7 +999,7 @@ main { padding: 32px 24px 80px; margin: 0 auto; }
 .bug-line:last-child { border-bottom: 0; }
 .bug-line:hover:not(:disabled) { background: var(--yellow-soft); }
 .bug-line:disabled { cursor: default; color: var(--ink); }
-.bug-line code { padding: 0 12px 0 0; border: 0; background: none; font-size: inherit; white-space: pre; overflow-x: auto; }
+.bug-line code { padding: 0 12px 0 0; border: 0; background: none; font-size: inherit; white-space: pre; overflow-wrap: normal; }
 .bug-num { padding-right: 12px; text-align: right; color: var(--ink-3); user-select: none; }
 .bug-line.right { background: var(--good-soft); }
 .bug-line.wrong { background: var(--bad-soft); }
@@ -1417,7 +1419,9 @@ a.today-step:hover { border-color: var(--accent); text-decoration: none; }
 
 @media (max-width: 920px) {
   .topbar { flex-wrap: wrap; gap: 8px 12px; padding: 10px 16px; }
-  .nav { order: 3; width: 100%; margin: 0 -4px; overflow-x: auto; scrollbar-width: none; }
+  .nav { order: 3; width: 100%; margin: 0 -4px; overflow-x: auto; scrollbar-width: none; padding-right: 24px;
+    /* the fade on the right shows there are more tabs to swipe to */
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent); }
   .nav a { font-size: 14px; padding: 5px 10px; }
   .py-status { font-size: 12px; }
 }

@@ -96,6 +96,7 @@
   // The Monday that starts the week holding this date.
   const mondayOf = (key) => addDays(key, -((toDate(key).getDay() + 6) % 7));
   const longDate = (key) => toDate(key).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  const shortDate = (key) => toDate(key).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
   function normalise(text) {
     const lines = String(text).replace(/\r\n/g, "\n").split("\n").map((l) => l.replace(/\s+$/, ""));
@@ -106,7 +107,7 @@
 
   // ---- lesson text: «code», **bold**, [link](https://…) ----
   function inline(text) {
-    const re = /«([^»]*)»|\*\*([^*]+)\*\*|\[([^\]]+)\]\((https?:[^)\s]+)\)/g;
+    const re = /«([^»]*)»|\*\*([^*]+)\*\*|\[([^\]]+)\]\((https?:[^)\s]+|#\/[^)\s]*)\)/g;
     let out = "";
     let last = 0;
     let m;
@@ -114,6 +115,7 @@
       out += esc(text.slice(last, m.index));
       if (m[1] !== undefined) out += `<code>${esc(m[1])}</code>`;
       else if (m[2] !== undefined) out += `<strong>${inline(m[2])}</strong>`;
+      else if (m[4].startsWith("#")) out += `<a href="${esc(m[4])}">${esc(m[3])}</a>`; // a page of this site
       else out += `<a href="${esc(m[4])}" target="_blank" rel="noopener">${esc(m[3])}</a>`;
       last = re.lastIndex;
     }
@@ -1077,7 +1079,7 @@
     } else if (t === "IndexError") {
       text = /pop from empty/.test(m)
         ? `You tried to take an item out of an empty list.`
-        : `You asked for a position that doesn't exist. Positions start at 0, so a list with 3 items has positions 0, 1 and 2 — position 3 doesn't exist. «len(...)» tells you how many items there are.`;
+        : `You asked for a position that doesn't exist. Positions start at 0, so, for example, a list with 3 items has positions 0, 1 and 2, and no position 3. «len(...)» tells you how many items there are.`;
     } else if (t === "KeyError") {
       text = `The dictionary has no key ${err.key || m}. Check spelling and capital letters, or use «.get(key)», which gives «None» instead of crashing.`;
     } else if (t === "AttributeError") {
@@ -1542,7 +1544,7 @@
     let picked = false;
     const options = q.options.map((opt, j) => {
       const btn = h("button", { type: "button", class: `opt${mono ? " mono" : ""}`, onclick: () => choose(j) });
-      if (mono) btn.textContent = opt;
+      if (mono) btn.textContent = opt.replace(/^«([^«»]*)»$/, "$1"); // already shown as code: drop the code marks
       else btn.innerHTML = inline(opt);
       return btn;
     });
@@ -2601,11 +2603,19 @@
   const coreDays = () => C.days.filter((d) => d.n <= CORE_DAYS);
   const solvedIn = (days) => days.reduce((n, d) => n + d.practice.filter((ex) => Store.data.solved[`${d.slug}/${ex.id}`]).length, 0);
 
+  // Days finished, for the progress numbers. An optional day the learner has moved past counts
+  // too, so skipping it never keeps the course below 100%.
+  function daysDoneCount() {
+    const finished = C.days.map((d) => !!Store.data.done[d.slug]);
+    const lastDone = finished.lastIndexOf(true);
+    return C.days.filter((d, i) => finished[i] || (d.optional && i < lastDone)).length;
+  }
+
   function renderHome() {
     const next = nextDay();
     const total = C.days.length;
     const core = coreDays().length;
-    const doneCount = C.days.filter((d) => Store.data.done[d.slug]).length;
+    const doneCount = daysDoneCount();
     const solvedCount = solvedIn(C.days);
     const exTotal = C.days.reduce((n, d) => n + d.practice.length, 0);
     const study = studyStats();
@@ -2723,7 +2733,7 @@
         h("div", { class: "level-head" },
           h("div", { class: "eyebrow" }, `Level ${l.n} · Days ${l.from} to ${Math.min(l.to, lastDay)}`),
           h("h2", { class: "level-title" }, l.title),
-          l.outcome ? h("p", {}, h("strong", {}, "Goal: "), l.outcome) : null),
+          l.outcome ? h("p", {}, h("strong", {}, "By the end, you can: "), l.outcome) : null),
         inside.map((w) => weekSection(w, next)));
     };
     const core = coreDays().length;
@@ -2900,7 +2910,7 @@
           sample ? null : planTap(),
           h("p", {}, nxt
             ? `Well done. Come back tomorrow for ${name} ${nxt.n}: ${nxt.title} — or carry on now if you have energy left.`
-            : sample ? "That was the last sample day." : "That was the final day. You've learned the basics of Python — congratulations!"),
+            : sample ? "That was the last sample day." : "That was the final day of the course. You can read, fix and write real Python programs now. Congratulations!"),
           nxt
             ? h("a", { class: "btn primary", href: `${base}${nxt.n}` }, `Go to ${name} ${nxt.n} →`)
             : h("a", { class: "btn primary", href: "#/progress" }, "See your progress"),
@@ -3169,7 +3179,7 @@ for number in range(1, 4):
   // ---- Progress ----
   function renderProgress() {
     const total = C.days.length;
-    const doneCount = C.days.filter((d) => Store.data.done[d.slug]).length;
+    const doneCount = daysDoneCount();
     const solved = C.days.flatMap((d) => d.practice.map((ex) => Store.data.solved[`${d.slug}/${ex.id}`]).filter(Boolean));
     const exTotal = C.days.reduce((n, d) => n + d.practice.length, 0);
     const quizTotal = C.days.reduce((n, d) => n + d.quiz.length, 0);
@@ -3204,9 +3214,9 @@ for number in range(1, 4):
             const of = st.exTotal + st.quizTotal;
             const frac = of ? (st.exDone + st.quizDone) / of : 0;
             return h("a", { class: "prog-row", href: `#/day/${d.n}` },
-              h("span", { class: "prog-name" }, `Day ${d.n}. ${d.title}`),
+              h("span", { class: "prog-name" }, `Day ${d.n}. ${d.title}`, d.optional && !/optional/i.test(d.title) ? " (optional)" : ""),
               h("span", { class: "bar" }, h("span", { style: `width:${Math.round(frac * 100)}%` })),
-              h("span", { class: "prog-state" }, Store.data.done[d.slug] ? `✓ ${Store.data.done[d.slug]}` : `${st.exDone}/${st.exTotal} ex · ${st.quizDone}/${st.quizTotal} Q`));
+              h("span", { class: "prog-state" }, Store.data.done[d.slug] ? `✓ ${shortDate(Store.data.done[d.slug])}` : `${st.exDone}/${st.exTotal} ex · ${st.quizDone}/${st.quizTotal} Q`));
           }));
       }),
       backupSection(),
@@ -4057,6 +4067,7 @@ for number in range(1, 4):
     for (const v of liveViews) v.cancel();
     liveViews.clear();
     closeGloss();
+    const PAGE_TITLES = { playground: "Playground", programs: "My Programs", cheatsheet: "Cheat sheet", glossary: "Glossary", progress: "Progress" };
     const hash = location.hash || "#/";
     const m = hash.match(/^#\/day\/(\d+)$/);
     const s = hash.match(/^#\/sample(?:\/(\d+))?$/);
@@ -4100,7 +4111,10 @@ for number in range(1, 4):
     const sampleDay = s && C.sampleDays ? C.sampleDays[(s[1] ? +s[1] : 1) - 1] : null;
     document.title = day
       ? `Day ${day.n}: ${day.title} · Forty Days of Python`
-      : sampleDay ? `Sample day ${sampleDay.n}: ${sampleDay.title} · Forty Days of Python` : "Forty Days of Python";
+      : sampleDay ? `Sample day ${sampleDay.n}: ${sampleDay.title} · Forty Days of Python`
+        : PAGE_TITLES[nav] && hash !== "#/" && !cert ? `${PAGE_TITLES[nav]} · Forty Days of Python`
+          : cert ? "Certificate · Forty Days of Python"
+            : hash === "#/review" ? "Warm-up cards · Forty Days of Python" : "Forty Days of Python";
     window.scrollTo(0, 0);
   }
 
