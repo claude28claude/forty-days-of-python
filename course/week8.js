@@ -1274,7 +1274,7 @@
         print("Outside:", score)
       `, { predict: ["Inside: 14\nOutside: 10", "Inside: 14\nOutside: 14", "Inside: 10\nOutside: 10"], answer: 0 }),
       md`
-        Each call of a function gets its own box of names. A name made with «=» inside a function is a **local name**: it lives only in that box, and it is gone when the function ends. The **scope** of a name is the part of the program that can see it.
+        Each call of a function gets its own box of names. A name made with «=» inside a function is a **local name**. It lives only in that box, and it is gone when the function ends. The **scope** of a name is the part of the program that can see it.
 
         So line 4 makes a new local «score». The main program's «score» is a different name in a different box. Press Step through and watch the two boxes.
       `,

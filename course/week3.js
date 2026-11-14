@@ -1085,7 +1085,7 @@
 
         `,
         hints: [
-          md`Plan: ask for «n», start a counter at 0, loop from 1 to «n», and add 1 to the counter when the number divides by 3 or by 5.`,
+          md`Plan: ask for «n», and start a counter at 0. Loop from 1 to «n». Add 1 to the counter when the number divides by 3 or by 5.`,
           md`Before the loop: «n = int(input("Up to: "))» and «count = 0». The loop line is «for i in range(1, n + 1):».`,
           md`Inside the loop: «if i % 3 == 0 or i % 5 == 0:» then «count += 1». Print «count» after the loop.`,
         ],

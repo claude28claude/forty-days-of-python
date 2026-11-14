@@ -2145,6 +2145,7 @@
       md`
         ## What to learn next
 
+        - **Carry on here.** This course goes on for 65 more days. Day 41 is next. You will run Python on your own laptop, hunt bugs and work with real files. Later you build with objects, and finish with a program of your own.
         - **Build things.** Small projects teach the most: a budget tracker, a quiz for SSC practice, a program that puts your files into the right folders.
         - **Go deeper.** Learn more about classes, dates (the «datetime» module), and other modules in the standard library.
         - **Choose one area that you like.** Data and charts, websites, **automation** (making the computer do boring work), games, or artificial intelligence. Each area has free extra modules, like pandas for data. To add one, type «python -m pip install pandas» in the terminal.

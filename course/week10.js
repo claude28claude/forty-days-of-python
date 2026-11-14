@@ -273,7 +273,7 @@
       {
         id: "k1", kind: "make", title: "Make: different visitors",
         task: md`
-          Ask for names on one line, with spaces between them. Use a set. Print how many names were typed, how many were different, and the different names in A to Z order, joined with a comma and a space. For «Asha Ravi Asha Meena Ravi Asha» it shows:
+          Ask for names on one line, with spaces between them. Use a set. Print how many names were typed, and how many were different. Then print the different names in A to Z order, joined with a comma and a space. For «Asha Ravi Asha Meena Ravi Asha» it shows:
 
           | Typed: 6
           | Different: 3
@@ -647,7 +647,7 @@
       {
         id: "k1", kind: "make", title: "Make: two exam centres",
         task: md`
-          Ask for the roll numbers at Centre A on one line, then the roll numbers at Centre B on a second line. Turn each roll number into a whole number. Use sets to print three lines: the roll numbers at **both** centres (a clash), how many different roll numbers there are in all, and the roll numbers **only** at Centre A. Print each group sorted.
+          Ask for the roll numbers at Centre A on one line, then the roll numbers at Centre B on a second line. Turn each roll number into a whole number. Use sets to print three lines. First, the roll numbers at **both** centres (a clash). Second, how many different roll numbers there are in all. Third, the roll numbers **only** at Centre A. Print each group sorted.
 
           For «1001 1043 1500 2210» and «1043 2210 3007 3100» it shows:
 
@@ -1005,7 +1005,7 @@
       {
         id: "k1", kind: "make", title: "Make: city names by length",
         task: md`
-          Ask for city names on one line, with spaces between them. Print three lines: the names sorted by length (shortest first, ties keep the typed order) joined with a comma and a space, then the shortest name, then the longest name. Use «key=» each time. When two names tie for shortest or longest, show the first one typed.
+          Ask for city names on one line, with spaces between them. Print three lines. First, the names sorted by length, joined with a comma and a space: shortest first, and ties keep the typed order. Then the shortest name. Then the longest name. Use «key=» each time. When two names tie for shortest or longest, show the first one typed.
 
           For «Mumbai Goa Pune Agra Chennai» it shows:
 
@@ -2006,7 +2006,7 @@
       {
         id: "s3", stage: 3, carry: "s2", title: "Stage 3: a room of students",
         task: md`
-          Now read the sheets from the user. Keep both functions. Replace the lines below them with a program that asks for the answer key on one line, then how many students, then each student on one line: the name, then the answers. Print each student's total in the typed order.
+          Now read the sheets from the user. Keep both functions. Replace the lines below them with a program that asks three things. First, the answer key on one line. Then how many students there are. Then each student on one line: the name, then the answers. Print each student's total in the typed order.
 
           For the key «A C B D A B», 2 students, «Asha A B - D C B» and «Ravi A C B D A B», it shows:
 
@@ -2243,7 +2243,7 @@
       {
         id: "twist", kind: "modify", carry: "s4", optional: true, noStep: true, title: "Own Twist: your own marking scheme",
         task: md`
-          Mock tests use different marking schemes. Change your program so it first asks for the marks for a right answer and the marks taken away for a wrong answer, on one line, like «1 0.25». Use these numbers instead of 2 and 0.5. Print scores with 2 decimal places, using «:.2f».
+          Mock tests use different marking schemes. Change your program so it first asks for two numbers on one line, like «1 0.25». The first is the marks for a right answer. The second is the marks taken away for a wrong answer. Use these numbers instead of 2 and 0.5. Print scores with 2 decimal places, using «:.2f».
 
           For «1 0.25», then the key «A C B D A B» and the three students of Stage 4, it shows:
 

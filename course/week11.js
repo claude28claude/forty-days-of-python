@@ -1007,7 +1007,7 @@
       `, { error: true, label: "A crash on purpose",
            predict: ["AssertionError: with_charge(3) gave 3.3000000000000003", "All tests passed", "ZeroDivisionError"], answer: 0 }),
       md`
-        The function is right, but decimals carry tiny errors, as on Day 2. So **round before you compare** decimals: «assert round(got, 2) == 3.3». Now the test passes.
+        The function is right, but decimals carry tiny errors, as on Day 5. So **round before you compare** decimals: «assert round(got, 2) == 3.3». Now the test passes.
       `,
       pause(md`A good place for a short break. Your progress is saved.`),
       md`
