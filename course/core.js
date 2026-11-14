@@ -30,6 +30,14 @@
   // code stays a backslash-n instead of becoming a real line break.
   const raw = (strings, ...values) => dedent(String.raw(strings, ...values));
 
+  // Weeks 1 to 17 have 7 days each. From Week 18 on, weeks are shorter, so they
+  // start on these days.
+  const WEEK_STARTS = [[21, 136], [20, 131], [19, 126], [18, 120]];
+  const weekOf = (n) => {
+    for (const [week, first] of WEEK_STARTS) if (n >= first) return week;
+    return Math.ceil(n / 7);
+  };
+
   window.Course = {
     days,
     weeks: [
@@ -60,8 +68,8 @@
       { n: 1, title: "First Steps", from: 1, to: 14, outcome: "Follow a 10-line program with if and elif in your head, and write a small ask-calculate-print program from a blank page." },
       { n: 2, title: "Loops and Lists", from: 15, to: 28, outcome: "Predict what a loop inside a loop prints, and fix a loop that runs one time too many or too few." },
       { n: 3, title: "Core Programmer", from: 29, to: 40, outcome: "Build a working menu program in stages, and earn your first certificate." },
-      { n: 4, title: "Laptop and Bug Hunter", from: 41, to: 51, outcome: "Run Python files on your own Windows laptop, and repair broken programs you have never seen, without Step-through." },
-      { n: 5, title: "Names and Tables", from: 52, to: 63, outcome: "Tell when two names share one list, and work with tables of records and grids." },
+      { n: 4, title: "Laptop, Bugs and Names", from: 41, to: 56, outcome: "Run Python files on your own Windows laptop, repair broken programs you have never seen without Step-through, and tell when two names share one list." },
+      { n: 5, title: "Tables and Grids", from: 57, to: 63, outcome: "Work with tables of records, group them, and walk through grids of rows and columns." },
       { n: 6, title: "Sorting and Proving", from: 64, to: 77, outcome: "Sort by any rule you choose, and write tests that catch hidden bugs." },
       { n: 7, title: "Real Data", from: 78, to: 91, outcome: "Work with folders, CSV and JSON files, dates and text patterns, read other people's code, and use your own modules and an installed package." },
       { n: 8, title: "Objects", from: 92, to: 98, outcome: "Design small classes that work together." },
@@ -79,7 +87,7 @@
     pause: (text) => ({ t: "pause", text }),
     day(spec) {
       spec.n = days.length + 1;
-      spec.week = spec.week || Math.ceil(spec.n / 7);
+      spec.week = spec.week || weekOf(spec.n);
       // An exercise's `files` (name -> text) are its starting files: Run starts
       // with them, and every hidden test gets them unless the test gives its own.
       for (const ex of spec.practice || []) {

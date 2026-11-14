@@ -2736,9 +2736,13 @@
     const levelBlock = (l) => {
       const inside = weeks.filter((w) => !placed.has(w.n) && firstDay(w) >= l.from && firstDay(w) <= l.to);
       inside.forEach((w) => placed.add(w.n));
+      // Show the days of the weeks actually under this heading, so the numbers always match the tiles.
+      const lastOf = (w) => Math.max(...C.days.filter((d) => d.week === w.n).map((d) => d.n));
+      const from = inside.length ? Math.min(...inside.map(firstDay)) : l.from;
+      const to = inside.length ? Math.max(...inside.map(lastOf)) : Math.min(l.to, lastDay);
       return h("section", { class: "level" },
         h("div", { class: "level-head" },
-          h("div", { class: "eyebrow" }, `Level ${l.n} · Days ${l.from} to ${Math.min(l.to, lastDay)}`),
+          h("div", { class: "eyebrow" }, `Level ${l.n} · Days ${from} to ${to}`),
           h("h2", { class: "level-title" }, l.title),
           l.outcome ? h("p", {}, h("strong", {}, "By the end, you can: "), l.outcome) : null),
         inside.map((w) => weekSection(w, next)));

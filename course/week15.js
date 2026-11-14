@@ -5026,7 +5026,7 @@
     kind: "checkpoint",
     exam: true,
     needs: [70, 98, 104],
-    win: "Today you can now read, fix and write programs you have never seen, and you have a plan for what comes next. This completes the main course.",
+    win: "Today you can now read, fix and write programs you have never seen, and you have a plan for what comes next. This completes Level 9.",
     learn: [
       md`
         ## How the final exam works

@@ -1725,6 +1725,17 @@
         Stage 1 builds the data and the Tracker. Stage 2 adds the commands. Stage 3 adds the report table. Stage 4 adds the log file. In Stage 5 your tests must catch 3 broken trackers. All amounts are invented.
       `,
       pause(md`This project usually takes two sittings. Each stage saves when you pass it, so stop after any stage.`),
+      md`
+        ## When you finish: what comes next
+
+        This is the last day of the course. After it, you learn best by building things you care about:
+
+        1. **Make the Command Centre yours.** Save the expenses in SQLite (Day 121), add a «month» command, or turn it into an argparse tool (Day 127).
+        2. **A project of your own**, planned on paper, built in stages and tested, like every project here.
+        3. **Free help to keep growing.** The Python library reference: [docs.python.org/3/library](https://docs.python.org/3/library/). CS50P: [cs50.harvard.edu/python](https://cs50.harvard.edu/python/). Automate the Boring Stuff: [automatetheboringstuff.com](https://automatetheboringstuff.com/).
+
+        Everything in this course stays here, offline too. Come back to any day, the cheat sheet or the glossary whenever you forget something.
+      `,
     ],
     quiz: [
       { q: md`What does this show?`, code: py`

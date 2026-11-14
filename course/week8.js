@@ -485,7 +485,7 @@
     minutes: 45,
     kind: "project",
     needs: [46, 48, 49, 50],
-    win: "Today you can now repair a 40-line program alone, with only the error message and print. This completes Level 4.",
+    win: "Today you can now repair a 40-line program alone, with only the error message and print. This completes the bug hunts.",
     learn: [
       md`
         ## Four patients
@@ -2808,7 +2808,7 @@
     minutes: 45,
     kind: "project",
     needs: [30, 35, 54, 55],
-    win: "Today you can now plan and build a whole program that changes its data, keeps its money right and refuses orders it cannot serve.",
+    win: "Today you can now plan and build a whole program that changes its data, keeps its money right and refuses orders it cannot serve. This completes Level 4.",
     learn: [
       md`
         ## Two dictionaries and some functions
