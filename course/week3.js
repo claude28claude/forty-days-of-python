@@ -273,7 +273,7 @@
         hints: [
           md`The start is already there: «number = 1». You need a condition and a change.`,
           md`The condition is «number <= 10». Inside the loop, print «number», then add 1 to it.`,
-          md`«while number <= 10:» — then print it and add 1, both indented.`,
+          md`«while number <= 10:», then print it and add 1, both indented.`,
         ],
         solution: py`
           number = 1
@@ -309,7 +309,7 @@
         hints: [
           md`Start with «n = int(input("Start from: "))».`,
           md`«while n > 0:» then print «n» and take 1 away.`,
-          md`«print("Liftoff!")» goes after the loop — not indented.`,
+          md`«print("Liftoff!")» goes after the loop, not indented.`,
         ],
         solution: py`
           n = int(input("Start from: "))
@@ -493,7 +493,7 @@
         `,
         options: ["0\n1\n2", "1\n2\n3", "0\n1\n2\n3"],
         answer: 0,
-        explain: md`«range(3)» is 0, 1, 2 — it starts at 0 and stops before 3.`,
+        explain: md`«range(3)» is 0, 1, 2. It starts at 0 and stops before 3.`,
         why: [null, md`«range(3)» starts at 0, not 1.`, md`The stop number, 3, is never included.`],
         skill: "trace",
       },
@@ -866,13 +866,13 @@
         `,
         options: ["5", "4", "10"],
         answer: 0,
-        explain: md`0, 2, 4, 6 and 8 are even — five numbers.`,
+        explain: md`0, 2, 4, 6 and 8 are even: five numbers.`,
         why: [null, md`0 is even too: «0 % 2» is 0.`, md`«count» only grows when the «if» is True, not every round.`],
         skill: "trace",
       },
       {
         q: md`When you multiply in a loop, why does the answer variable start at 1 and not 0?`,
-        options: ["Because anything multiplied by 0 is 0", "Because range() starts at 1", "No reason — either works"],
+        options: ["Because anything multiplied by 0 is 0", "Because range() starts at 1", "No reason: either works"],
         answer: 0,
         explain: md`Starting at 0 would make every answer 0. 1 doesn't change what it's multiplied by.`,
         why: [null, md`«range()» starts at 0 unless you give a start. The reason is the multiplying.`, md`Run the lesson's mistake: starting at 0 always gives 0.`],
@@ -1482,7 +1482,7 @@
         id: "vowel-count",
         title: "Vowels and other letters",
         task: md`
-          Ask for a sentence (letters and spaces only). Count its vowels (a, e, i, o, u — capitals count too) and its other letters. Spaces count as neither. For «Hello World»:
+          Ask for a sentence (letters and spaces only). Count its vowels (a, e, i, o, u, and capitals count too) and its other letters. Spaces count as neither. For «Hello World»:
 
           | Vowels: 3
           | Others: 7
@@ -2698,7 +2698,7 @@
                   print(i)
         `,
         hints: [
-          md`Check the "both" case **first** — otherwise 15 would be caught by the "multiple of 3" check.`,
+          md`Check the "both" case **first**. Otherwise 15 would be caught by the "multiple of 3" check.`,
           md`Keep the loop line «for i in range(1, n + 1):». Change only the «if» part inside it.`,
           md`«if i % 15 == 0:» (or «i % 3 == 0 and i % 5 == 0»), then «elif i % 3 == 0:», «elif i % 5 == 0:», «else: print(i)».`,
         ],

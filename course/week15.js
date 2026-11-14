@@ -4913,7 +4913,7 @@
         mission: md`
           Now do it for real.
 
-          1. In IDLE, make a new file and paste the bank from the lesson's Files panel. Save it as «questions.json» in «python-days».
+          1. Finish one Run in Stage 1. A Files panel then appears under it, with «questions.json» inside. Copy that text into a new file in IDLE, and save it as «questions.json» in «python-days».
           2. Make another new file with your Stage 4 program. Save it as «buddy.py» in the same folder.
           3. Run it three times with F5. Watch «boxes.json» and «history.json» appear in the folder. Your receipt: write the last Sessions and Best lines in your notebook.
         `,

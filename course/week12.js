@@ -97,7 +97,7 @@
         why: [null, md`In the second text, the backslash and the «n» join into one new line.`, md`Two backslashes make one backslash, not two.`],
         skill: "trace" },
       { q: md`Asha's laptop has «C:\new\table.csv», but «open("C:\new\table.csv")» says FileNotFoundError. Why?`,
-        options: ["«\n» and «\t» became a new line and a tab, so the path is wrong", "Windows paths must use capital letters", "«open» cannot read CSV files"],
+        options: ["«\\n» and «\\t» became a new line and a tab, so the path is wrong", "Windows paths must use capital letters", "«open» cannot read CSV files"],
         answer: 0, verify: false, mono: false,
         explain: md`Inside normal quotes, a backslash starts a backslash code. Use «r"C:\new\table.csv"» or forward slashes.`,
         why: [null, md`Capital letters do not matter in Windows folder names.`, md`«open» reads any text file, CSV too.`],

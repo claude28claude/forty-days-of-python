@@ -2669,7 +2669,7 @@
 
         `,
         hints: [
-          md`«while True:» — ask, «break» if the answer is «done», otherwise append it.`,
+          md`Use «while True:». Ask, «break» if the answer is «done», otherwise append it.`,
           md`After the loop, use «if», «elif» and «else» on «len(tasks)»: 0, then 1, then more.`,
           md`For the numbered list: «for number, task in enumerate(tasks, start=1):».`,
         ],
