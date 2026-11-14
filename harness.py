@@ -213,6 +213,47 @@ def _stop_halting():
         _halting_tool = None
 
 
+# Modules real Python has already loaded before a program starts, so a file in
+# the program's folder with the same name does NOT replace them (plus every
+# module built into Python itself). Any other module, like random, IS replaced
+# by a file such as random.py next to the program: that is a classic mistake.
+_STARTUP_MODULES = {
+    "_collections_abc", "_frozen_importlib", "_frozen_importlib_external", "_sitebuiltins", "abc",
+    "codecs", "encodings", "genericpath", "io", "linecache", "ntpath", "os", "posixpath", "site",
+    "stat", "zipimport",
+} | set(sys.builtin_module_names)
+
+
+@contextlib.contextmanager
+def _local_imports():
+    """While the learner's code runs, «import helpers» finds helpers.py in the program's folder,
+    as it does on a real computer. Afterwards the folder leaves the search path and every
+    module loaded from it is forgotten, so the next run imports the files afresh."""
+    global _shadowed_now
+    folder = WORK_DIR
+    local = {entry.name[:-3] for entry in os.scandir(folder) if entry.name.endswith(".py")} if os.path.isdir(folder) else set()
+    shadowed = {name: sys.modules.pop(name) for name in local - _STARTUP_MODULES if name in sys.modules}
+    _shadowed_now = shadowed            # _shadow_if_local adds files the program saves while it runs
+    before = set(sys.modules)
+    sys.path.insert(0, folder)
+    saved_bytecode = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True      # no __pycache__ folder appears among the learner's files
+    sys.path_importer_cache.pop(folder, None)   # a fresh look at the folder: its files change between runs
+    try:
+        yield
+    finally:
+        if folder in sys.path:
+            sys.path.remove(folder)
+        sys.dont_write_bytecode = saved_bytecode
+        # Only modules that appeared during this run can have come from the folder.
+        for name in set(sys.modules) - before:
+            path = getattr(sys.modules[name], "__file__", None) or ""
+            if path.startswith(folder):
+                del sys.modules[name]
+        sys.modules.update(shadowed)    # the real modules come back for everything else
+        _shadowed_now = None
+
+
 def _fresh_folder(files=None):
     """Each run starts in an empty folder, so file exercises behave the same every time.
 
@@ -289,9 +330,26 @@ def _folder_files():
 
 _real_import = builtins.__import__
 _active_session = None
+_shadowed_now = None    # while learner code runs: real modules hidden by the learner's own files
+
+
+def _shadow_if_local(top, importer_globals):
+    """A program that saves its own random.py and then runs «import random» gets its own file,
+    as on a real computer. Only imports written in the learner's code (or in the learner's own
+    files) are affected; everything else keeps the real modules."""
+    learner = importer_globals is _active_session.namespace or \
+        str(importer_globals.get("__file__") or "").startswith(WORK_DIR)
+    if not learner or top in _STARTUP_MODULES or top not in sys.modules:
+        return
+    cached = getattr(sys.modules[top], "__file__", None) or ""
+    if not cached.startswith(WORK_DIR) and os.path.exists(os.path.join(WORK_DIR, top + ".py")):
+        _shadowed_now[top] = sys.modules.pop(top)
+        sys.path_importer_cache.pop(WORK_DIR, None)
 
 
 def _watching_import(name, globals=None, locals=None, fromlist=(), level=0):
+    if level == 0 and globals is not None and _active_session is not None and _shadowed_now is not None:
+        _shadow_if_local(name.partition(".")[0], globals)
     module = _real_import(name, globals, locals, fromlist, level)
     if name.startswith("matplotlib") and "matplotlib.pyplot" in sys.modules:
         _patch_pyplot(sys.modules["matplotlib.pyplot"])
@@ -353,12 +411,15 @@ class _Session:
         builtins.input = self._input
         builtins.__import__ = _watching_import
         _active_session = self
+        local_imports = _local_imports()
+        local_imports.__enter__()
         sys.settrace(_make_tracer(time.monotonic() + TIME_LIMIT, on_event))
         try:
             yield
         finally:
             sys.settrace(None)
             _stop_halting()
+            local_imports.__exit__(None, None, None)
             sys.stdout, sys.stderr, builtins.input, builtins.__import__, _active_session = saved
 
     def execute(self, code, mode="exec", on_event=None, compiled=None, fresh=True,

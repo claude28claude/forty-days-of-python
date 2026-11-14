@@ -1075,7 +1075,7 @@
       let r;
       if ((r = m.match(/'(\w+)' object has no attribute '(\w+)'/)))
         text = `${typeWords(r[1]).replace(/^./, (c) => c.toUpperCase())} doesn't have anything called «.${r[2]}». Check the spelling.${r[1] === "NoneType" ? " A «None» often comes from a function that prints instead of using «return», or from a method like «.sort()» that changes a list but gives back nothing." : ""}`;
-      else if ((r = m.match(/module '(\w+)' has no attribute '(\w+)'/))) text = `The «${r[1]}» module has nothing called «${r[2]}». Check the spelling.`;
+      else if ((r = m.match(/module '(\w+)' has no attribute '(\w+)'/))) text = `The «${r[1]}» module has nothing called «${r[2]}». Check the spelling. If the spelling is right, look for a file of your own called «${r[1]}.py»: Python imports your file instead of its own module. Rename your file, for example to «my_${r[1]}.py».`;
       else text = m;
     } else if (t === "ModuleNotFoundError") {
       text = `Python can't find that module. Check the spelling. (This page includes Python's standard modules, like «math», «random» and «datetime».)`;

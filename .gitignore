@@ -4,8 +4,6 @@ drafts/
 docs/
 tools/
 __pycache__/
-# Days 78 to 105 are not finished, so they are not published
-course/week12.js
-course/week13.js
+# Days 92 to 105 are not finished, so they are not published
 course/week14.js
 course/week15.js

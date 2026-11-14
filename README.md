@@ -1,6 +1,6 @@
 # Forty Days of Python
 
-A free Python course for complete beginners: 40 short daily lessons, then 37 more days going further.
+A free Python course for complete beginners: 40 short daily lessons, then 51 more days going further (91 days in all).
 
 **Start learning:** https://claude28claude.github.io/forty-days-of-python/
 
