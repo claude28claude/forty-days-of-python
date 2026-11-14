@@ -3312,7 +3312,8 @@ for number in range(1, 4):
   const CERT_WORDS = {
     40: { title: "The 40-day core", line: "has completed all 40 days of the core course in Python programming" },
     105: { title: "The 105-day course", line: "has completed all 105 days of the main Python programming course, from the first print() to a capstone program" },
-    130: { title: "The complete 130-day course", line: "has completed all 130 days of the Python programming course, from the first print() to a tested final project with its own database" },
+    130: { title: "The 130-day course", line: "has completed all 130 days of the Python programming course, from the first print() to a tested final project with its own database" },
+    140: { title: "The complete 140-day course", line: "has completed all 140 days of the Python programming course, from the first print() to professional tools: databases, tests, logging, web data and git" },
   };
   const CERTS = {};
   for (const l of C.levels && C.levels.length ? C.levels : [{ n: 3, to: 40 }, { n: 9, to: 105 }]) {

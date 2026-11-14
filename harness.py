@@ -1074,7 +1074,9 @@ def _continuation_lines(code):
         last = node.end_lineno
         body = getattr(node, "body", None)
         if isinstance(node, _COMPOUND) or isinstance(node, ast.Match):
-            first_inside = [n.lineno for f in ("body", "cases", "handlers") for n in getattr(node, f, None) or []]
+            # A match statement's cases have no line number of their own: it is on their pattern.
+            first_inside = [n.pattern.lineno if isinstance(n, ast.match_case) else n.lineno
+                            for f in ("body", "cases", "handlers") for n in getattr(node, f, None) or []]
             last = min(first_inside) - 1 if first_inside else node.lineno
         elif isinstance(body, list):
             last = node.lineno
@@ -1217,10 +1219,14 @@ class _Narrator:
         self.final = status.get("final") if status["status"] == "ok" else None
         self.source = code.splitlines()
         self.by_line = {}
+        self.cases = {}                     # line of a case's pattern -> (match statement, that case)
         self.classes, self.functions, self.generators = set(), set(), set()
         for node in ast.walk(ast.parse(code)):
             if isinstance(node, (ast.stmt, ast.ExceptHandler)):
                 self.by_line.setdefault(node.lineno, []).append(node)
+            if isinstance(node, ast.Match):
+                for case in node.cases:
+                    self.cases.setdefault(case.pattern.lineno, (node, case))
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 self.functions.add(node.name)
                 if any(isinstance(n, (ast.Yield, ast.YieldFrom)) for n in ast.walk(node)):
@@ -1358,11 +1364,14 @@ class _Narrator:
         if self.refire[i]:
             return None
         line, d = self.steps[i]["line"], self.depth[i]
+        if line in self.cases and not self.by_line.get(line):
+            return self.say_case(i, *self.cases[line])
         nodes = self.outer(line)
         if not nodes or (len(nodes) > 1 and any(isinstance(n, _COMPOUND) for n in nodes)):
             return None
         first = nodes[0]
-        if isinstance(first, _COMPOUND) and first.body and first.body[0].lineno == line:
+        body = getattr(first, "body", None)   # a match statement has cases, not a body
+        if isinstance(first, _COMPOUND) and body and body[0].lineno == line:
             return None                     # "if x: y = 1" on one line - too tangled to explain
         following = self.steps[i + 1] if i + 1 < len(self.steps) else None
         if (following is not None and following["kind"] == "line" and self.depth[i + 1] == d + 1
@@ -1491,6 +1500,28 @@ class _Narrator:
                 return f"Python checks {test}. It is False, so Python moves on to the «elif» on line {line}."
             return f"Python checks {test}. It is False, so Python goes to the «else» part, line {line}."
         return f"Python checks {test}. It is False, so Python skips the lines inside. " + self.where_next(i)
+
+    def say_Match(self, node, i, error):
+        subject, line = _code(node.subject), self.next_line(i)
+        if line == node.cases[0].pattern.lineno:
+            return f"Python takes {subject} and tries each «case» in turn, from the top."
+        for case in node.cases:
+            if _in_block(case.body, line):
+                return f"Python takes {subject}. The «case» on line {case.pattern.lineno} fits, so Python runs the lines inside it."
+        return f"Python takes {subject}, but no «case» fits, so Python skips them all. " + self.where_next(i)
+
+    def say_case(self, i, match, case):
+        """A step on a case's own line: Python is testing whether this case fits."""
+        line = self.next_line(i)
+        pattern = _code(case.pattern, 40)
+        if case.guard is not None:
+            pattern += f" with the test {_code(case.guard, 30)}"
+        if _in_block(case.body, line):
+            return f"Does it fit {pattern}? Yes, so Python runs the lines inside this «case»."
+        later = [c for c in match.cases if c.pattern.lineno > case.pattern.lineno]
+        if later and line == later[0].pattern.lineno:
+            return f"Does it fit {pattern}? No, so Python tries the next «case»."
+        return f"Does it fit {pattern}? No, and no other «case» fits, so Python skips them all."
 
     def say_While(self, node, i, error):
         test = _code(node.test)

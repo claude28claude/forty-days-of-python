@@ -52,6 +52,8 @@
       { n: 17, title: "Better Classes", blurb: "Objects that compare, check their own values and raise their own errors." },
       { n: 18, title: "Real Data and Real Tests", blurb: "Files with pathlib, SQLite databases and proper test files." },
       { n: 19, title: "The Last Mile", blurb: "A fast sort, laptop tools, the final project and the grand final exam." },
+      { n: 20, title: "Sharper Everyday Python", blurb: "Neat tables, match and case, more comprehensions, names and copies, and your own with." },
+      { n: 21, title: "Working Like a Professional", blurb: "Enums, logging, data from the internet, your laptop toolkit, and the Expense Command Centre." },
     ],
     // docs/SPEC.md section 5: each level is a run of days with one outcome.
     levels: [
@@ -65,6 +67,7 @@
       { n: 8, title: "Objects", from: 92, to: 98, outcome: "Design small classes that work together." },
       { n: 9, title: "On Your Own", from: 99, to: 105, outcome: "Explain why a program is slow, build your own capstone program from a blank page, and pass the final exam." },
       { n: 10, title: "Python Like a Professional", from: 106, to: 130, outcome: "Use the tools working programmers use every day: smarter data tools, better classes, databases and proper tests, ending with a tested final project." },
+      { n: 11, title: "Filling the Gaps", from: 131, to: 140, outcome: "Learn the everyday tools still missing: neat output, match and case, closures, iterators, enums, logging, web data, venv and git, ending with the Expense Command Centre." },
     ],
     md: raw,
     py: raw,

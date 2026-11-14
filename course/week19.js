@@ -3985,7 +3985,7 @@
     kind: "checkpoint",
     exam: true,
     needs: [105, 125, 129],
-    win: "Today you can now read, fix and write professional Python you have never seen. This completes the whole 130-day course.",
+    win: "Today you can now read, fix and write professional Python you have never seen. This completes Level 10.",
     learn: [
       md`
         ## How the grand final works
@@ -4006,7 +4006,7 @@
 
         ## What comes next
 
-        You have finished the whole course. You can plan, build and test real programs with the tools professionals use. Keep going:
+        You can plan, build and test real programs with the tools professionals use. The next step is right here: **Level 11, Days 131 to 140**. It fills the last gaps: neat tables, «match» and «case», closures, iterators, enums, logging, data from the internet, and venv and git on your laptop. It ends with the Expense Command Centre project. Alongside it, or after it:
 
         1. **A project of your own.** Pick something you would use every day: a fee register, a vocabulary tester, a reading log. Plan it on paper, build it in stages, and test every stage, just like the study planner.
         2. **The Python library reference**, free from the people who make Python: [docs.python.org/3/library](https://docs.python.org/3/library/). When you need a tool, look there first: «csv», «datetime», «sqlite3» and many more.
