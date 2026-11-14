@@ -48,6 +48,10 @@
       { n: 13, title: "Patterns and Other People's Code", blurb: "Find patterns in text, read other people's code and make your own modules." },
       { n: 14, title: "Objects, Properly", blurb: "Design small classes that work together." },
       { n: 15, title: "Speed, Then Your Own Program", blurb: "Learn why some programs are slow, then build your own study program." },
+      { n: 16, title: "Smarter Data Tools", blurb: "Queues, generators and tools that count every choice." },
+      { n: 17, title: "Better Classes", blurb: "Objects that compare, check their own values and raise their own errors." },
+      { n: 18, title: "Real Data and Real Tests", blurb: "Files with pathlib, SQLite databases and proper test files." },
+      { n: 19, title: "The Last Mile", blurb: "A fast sort, laptop tools, the final project and the grand final exam." },
     ],
     // docs/SPEC.md section 5: each level is a run of days with one outcome.
     levels: [
@@ -60,6 +64,7 @@
       { n: 7, title: "Real Data", from: 78, to: 91, outcome: "Work with folders, CSV and JSON files, dates and text patterns, read other people's code, and use your own modules and an installed package." },
       { n: 8, title: "Objects", from: 92, to: 98, outcome: "Design small classes that work together." },
       { n: 9, title: "On Your Own", from: 99, to: 105, outcome: "Explain why a program is slow, build your own capstone program from a blank page, and pass the final exam." },
+      { n: 10, title: "Python Like a Professional", from: 106, to: 130, outcome: "Use the tools working programmers use every day: smarter data tools, better classes, databases and proper tests, ending with a tested final project." },
     ],
     md: raw,
     py: raw,

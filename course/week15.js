@@ -5026,7 +5026,7 @@
     kind: "checkpoint",
     exam: true,
     needs: [70, 98, 104],
-    win: "Today you can now read, fix and write programs you have never seen, and you have a plan for what comes next. This completes the course.",
+    win: "Today you can now read, fix and write programs you have never seen, and you have a plan for what comes next. This completes the main course.",
     learn: [
       md`
         ## How the final exam works
@@ -5047,7 +5047,7 @@
 
         ## What comes next
 
-        You can read, fix and write real programs now. Three good next steps:
+        You can read, fix and write real programs now. The next step is right here: **Level 10, Days 106 to 130**. It adds the tools working programmers use every day: smarter data tools, better classes, databases and proper test files. It ends with a final project. Alongside it, or after it:
 
         1. **One project of your own.** Use the brief you wrote on Day 104, or start a new one. Plan stubs, write tests first, and build in stages.
         2. **The official Python tutorial**, free from the people who make Python: [docs.python.org/3/tutorial](https://docs.python.org/3/tutorial/). Most of chapters 1 to 9 will feel familiar now.

@@ -3304,7 +3304,8 @@ for number in range(1, 4):
   // Only levels whose last day exists in Course.days get one. Each needs every day up to it complete.
   const CERT_WORDS = {
     40: { title: "The 40-day core", line: "has completed all 40 days of the core course in Python programming" },
-    105: { title: "The full 105-day course", line: "has completed all 105 days of the Python programming course, from the first print() to a capstone program" },
+    105: { title: "The 105-day course", line: "has completed all 105 days of the main Python programming course, from the first print() to a capstone program" },
+    130: { title: "The complete 130-day course", line: "has completed all 130 days of the Python programming course, from the first print() to a tested final project with its own database" },
   };
   const CERTS = {};
   for (const l of C.levels && C.levels.length ? C.levels : [{ n: 3, to: 40 }, { n: 9, to: 105 }]) {

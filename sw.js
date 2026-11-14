@@ -9,7 +9,7 @@
 // The page registers this file only where service workers exist (app.js,
 // setupOffline); everywhere else the site works online exactly as before.
 
-const VERSION = "13";
+const VERSION = "14";
 const SITE_CACHE = `fortydays-site-v${VERSION}`;
 const PYODIDE_BASE = "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/"; // the same version as py-worker.js
 const PYODIDE_CACHE = "fortydays-pyodide-v314.0.7";
@@ -43,6 +43,7 @@ const SITE_FILES = [
   "course/week13.js",
   "course/week14.js",
   "course/week15.js",
+  "course/week16.js",
   "course/glossary.js",
 ];
 
