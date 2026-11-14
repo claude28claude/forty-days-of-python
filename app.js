@@ -880,6 +880,13 @@
   }
 
   function pythonProblem(err) {
+    // A program that calls itself without end (often through a property setter or __repr__)
+    // can overflow the browser's own stack before Python's RecursionError. runner.js restarts Python.
+    if (py.state !== "failed" && /call stack|too much recursion/i.test(String(err && err.message ? err.message : err)))
+      return h("div", { class: "errcard" },
+        h("div", { class: "errcard-title" }, "Your program never stopped calling itself"),
+        h("div", { class: "errcard-body", html: md(
+          "A function, or a property setter, kept calling itself until the page ran out of room. Look for a line that calls the same function again with no base case, or a setter that sets «self.name» instead of «self._name». Python has been restarted: fix the code, then run it again.") }));
     return h("div", { class: "errcard" },
       h("div", { class: "errcard-title" }, "Python itself had a problem (not your code)"),
       h("div", { class: "errcard-body", html: md(

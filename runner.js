@@ -70,8 +70,11 @@
         const job = this.pending.get(msg.id);
         if (!job) return;
         this.pending.delete(msg.id);
-        if (msg.failure) job.reject(new Error(msg.failure));
-        else job.resolve(msg.result);
+        if (msg.failure) {
+          job.reject(new Error(msg.failure));
+          // A browser stack overflow leaves this Python unusable, so start a fresh one.
+          if (/call stack|too much recursion/i.test(msg.failure)) this.restart("crashed");
+        } else job.resolve(msg.result);
       }
     }
 
