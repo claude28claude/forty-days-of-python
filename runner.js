@@ -33,7 +33,7 @@
       this.error = null;
       this.status = null;
       this.emit();
-      this.worker = new Worker("py-worker.js?v=3", { type: "module" });
+      this.worker = new Worker("py-worker.js?v=5", { type: "module" });
       this.ready = new Promise((resolve, reject) => {
         this.resolveReady = resolve;
         this.rejectReady = reject;

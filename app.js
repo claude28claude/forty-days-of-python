@@ -361,8 +361,12 @@
     };
   }
 
+  // An optional day (day.optional, like the chart taster) is offered once, but never blocks
+  // "Continue" or a certificate: after a later day is finished, it is simply skipped.
   function nextDay() {
-    return C.days.find((d) => !Store.data.done[d.slug]) || null;
+    const finished = C.days.map((d) => !!Store.data.done[d.slug]);
+    const lastDone = finished.lastIndexOf(true);
+    return C.days.find((d, i) => !finished[i] && !(d.optional && i < lastDone)) || null;
   }
 
   // The furthest day the learner has reached: any finished day, or the next one to do.
@@ -461,6 +465,7 @@
     sync() {
       const queue = Store.data.review;
       for (const day of C.days) {
+        if (day.optional) continue; // a taster day's questions never come back as warm-up cards
         day.quiz.forEach((_, i) => {
           const key = `${day.slug}/q${i}`;
           const answered = Store.data.quiz[key];
@@ -864,7 +869,11 @@
       const [count, len] = mark;
       list = events.slice(0, count).map((e, i) => (i === count - 1 ? [e[0], e[1].slice(0, len)] : e));
     }
-    for (const [kind, text] of list) nodes.push(h("span", { class: `ev-${kind}` }, text));
+    for (const [kind, text] of list) {
+      // A chart from plt.show() arrives as a PNG picture in base64 (harness.py).
+      if (kind === "image") nodes.push(h("img", { class: "ev-image", src: `data:image/png;base64,${text}`, alt: "The chart your program drew" }));
+      else nodes.push(h("span", { class: `ev-${kind}` }, text));
+    }
     return nodes;
   }
 
@@ -1607,12 +1616,18 @@
   // The starting code: the learner's own code from the exercise this one carries on from, if any.
   // An earlier stage the learner has not typed in yet shows code carried from the one before it,
   // so the chain is followed back until a stage with the learner's own code.
+  // `carry: "s1"` carries code from a stage of the same day; `carry: "capstone-plan/s3"` from
+  // another day's exercise (the capstone continues across three days). If the learner never
+  // wrote that code, the exercise's own starter is used.
   function starterFor(day, ex) {
+    let fromDay = day;
     for (let from = ex, n = 0; from && from.carry && n < 20; n++) {
-      const earlier = Store.data.code[`${day.slug}/${from.carry}`];
+      const [slug, id] = from.carry.includes("/") ? from.carry.split("/") : [fromDay.slug, from.carry];
+      const earlier = Store.data.code[`${slug}/${id}`];
       if (earlier != null && earlier.trim()) return earlier;
       if (earlier != null) break;
-      from = (day.practice || []).find((e) => e.id === from.carry);
+      if (slug !== fromDay.slug) fromDay = C.days.find((d) => d.slug === slug) || fromDay;
+      from = (fromDay.practice || []).find((e) => e.id === id);
     }
     return ex.starter || "";
   }
@@ -1933,6 +1948,16 @@
       r.view.hide();
       r.stepper.close();
     });
+    // `offerStarter` (a button label) lets a learner whose own earlier stage is unfinished
+    // start from the lesson's own starter instead, like the capstone's reference engine.
+    const offerBtn = ex.offerStarter && ex.carry
+      ? confirmButton(ex.offerStarter, "Click again: this replaces the code above", () => {
+        r.editor.value = ex.starter || "";
+        feedback.hidden = true;
+        r.view.hide();
+        r.stepper.close();
+      })
+      : null;
     const checkBtn = button("✓ Check answer", () => check(), "btn check");
 
     async function check() {
@@ -1953,7 +1978,7 @@
     return [
       catchMode ? [h("div", { class: "block-label" }, "The correct program"), staticCode(ex.target), h("div", { class: "block-label" }, "Your asserts")] : null,
       r.editor.root,
-      h("div", { class: "actions" }, catchMode ? null : r.runBtn, checkBtn, r.stepBtn, help.hintBtn, help.solBtn, resetBtn),
+      h("div", { class: "actions" }, catchMode ? null : r.runBtn, checkBtn, r.stepBtn, help.hintBtn, help.solBtn, resetBtn, offerBtn),
       feedback,
       help.list,
       r.view.root,
@@ -2662,21 +2687,22 @@
 
   function weekSection(w, next) {
     const list = C.days.filter((d) => d.week === w.n);
-    const done = list.filter((d) => Store.data.done[d.slug]).length;
+    const counted = list.filter((d) => !d.optional); // an optional day never counts towards the week
+    const done = counted.filter((d) => Store.data.done[d.slug]).length;
     return h("section", { class: "week" },
       h("div", { class: "week-head" },
         h("div", {},
           h("div", { class: "eyebrow" }, `Week ${w.n}`),
           h("h2", {}, w.title),
           h("p", { class: "muted" }, w.blurb)),
-        h("div", { class: "week-count" }, `${done} / ${list.length}`)),
+        h("div", { class: "week-count" }, `${done} / ${counted.length}`)),
       h("div", { class: "tiles" }, list.map((d) => {
         const st = dayStats(d);
         const isDone = !!Store.data.done[d.slug];
         const isNext = next && next.n === d.n;
         const partial = !isDone && (st.exDone || st.quizDone);
         return h("a", { class: `tile${isDone ? " done" : ""}${isNext ? " current" : ""}`, href: `#/day/${d.n}` },
-          h("span", { class: "tile-n" }, `Day ${d.n}`, d.kind === "project" ? " · Project" : d.kind === "checkpoint" ? " · Checkpoint" : ""),
+          h("span", { class: "tile-n" }, `Day ${d.n}`, d.optional ? " · Optional" : d.kind === "project" ? " · Project" : d.kind === "checkpoint" ? " · Checkpoint" : ""),
           h("span", { class: "tile-title" }, d.title),
           h("span", { class: "tile-state" }, isDone ? "✓ Done" : isNext ? "Up next" : partial ? `${st.exDone}/${st.exTotal} exercises` : ""));
       })));
@@ -2899,7 +2925,12 @@
         h("div", { class: "day-meta" },
           DAY_KINDS[day.kind] ? h("span", { class: `chip kind-${day.kind}` }, DAY_KINDS[day.kind]) : null,
           day.exam ? h("span", { class: "chip exam" }, "Exam: no hints, no Step-through") : null,
+          day.optional ? h("span", { class: "chip kind-project" }, "Optional day") : null,
           `About ${day.minutes} minutes · ${day.quiz.length} questions · ${day.practice.length} exercises${later ? ` (${later} to finish later)` : ""}`),
+        day.optional && nextD
+          ? h("p", { class: "needs" }, "Skipping this day costs nothing: it never counts for a week or a certificate. ",
+            h("a", { href: `${base}${nextD.n}` }, `Go to ${name} ${nextD.n}`))
+          : null,
         tracker,
         resume),
       h("section", { class: "day-section" },
@@ -3276,10 +3307,10 @@ for number in range(1, 4):
   const CERT_DAYS = Object.keys(CERTS).map(Number).sort((a, b) => a - b);
 
   // The days from Day 1 to Day n that are not complete yet.
-  const certMissing = (n) => C.days.slice(0, n).filter((d) => !Store.data.done[d.slug]);
+  const certMissing = (n) => C.days.slice(0, n).filter((d) => !d.optional && !Store.data.done[d.slug]);
   const certEarned = (n) => !!CERTS[n] && C.days.length >= n && certMissing(n).length === 0;
   // The date the last of those days was finished.
-  const certDate = (n) => C.days.slice(0, n).map((d) => Store.data.done[d.slug]).sort().pop();
+  const certDate = (n) => C.days.slice(0, n).map((d) => Store.data.done[d.slug]).filter(Boolean).sort().pop();
 
   function renderCertificate(n) {
     const cert = CERTS[n];
@@ -3319,7 +3350,21 @@ for number in range(1, 4):
         nameOut,
         h("div", { class: "cert-line" }, cert.line),
         h("div", { class: "cert-course" }, "Forty Days of Python"),
-        h("div", { class: "cert-date" }, `Finished on ${longDate(finished)}`)));
+        h("div", { class: "cert-date" }, `Finished on ${longDate(finished)}`),
+        certScores(n)));
+  }
+
+  // On a certificate that ends with an exam day: the exam's score for each skill, and how many
+  // Laptop Missions (drills) were done on the way. Scores count as on the exam's own panel.
+  function certScores(n) {
+    const exam = C.days[n - 1];
+    if (!exam || !exam.exam) return null;
+    const parts = Object.entries(skillScores(exam)).map(([skill, s]) => `${SKILL_NAMES[skill] || skill}: ${s.got} of ${s.of}`);
+    const drills = C.days.slice(0, n).flatMap((d) => d.practice.filter((e) => e.kind === "drill").map((e) => `${d.slug}/${e.id}`));
+    if (drills.length) parts.push(`Laptop Missions: ${drills.filter((k) => Store.data.solved[k]).length} of ${drills.length}`);
+    return h("div", { class: "cert-scores" },
+      h("div", { class: "cert-small" }, `Scores on Day ${exam.n}: ${exam.title}`),
+      h("div", {}, parts.join(" · ")));
   }
 
   // ---- Warm-up: today's cards, one at a time ----

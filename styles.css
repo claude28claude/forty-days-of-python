@@ -1390,6 +1390,8 @@ a.today-step:hover { border-color: var(--accent); text-decoration: none; }
 .cert-line { font-size: 18px; max-width: 520px; margin: 0 auto; }
 .cert-course { margin-top: 18px; font-size: 22px; font-weight: 700; color: #2f5fd0; }
 .cert-date { margin-top: 18px; color: #55514b; }
+.ev-image { display: block; max-width: 100%; height: auto; margin: 8px 0; background: #fff; border-radius: 6px; }
+.cert-scores { margin-top: 14px; font-size: 14px; color: #55514b; max-width: 560px; margin-left: auto; margin-right: auto; }
 
 @media print {
   .topbar, .notice, .no-print { display: none !important; }

@@ -36,6 +36,7 @@ import time
 import tokenize
 import traceback
 import types
+import warnings
 
 FILENAME = "<your code>"
 TARGET_FILENAME = "<the code being tested>"   # the correct or broken program in "Catch the Bug"
@@ -365,7 +366,12 @@ def _patch_pyplot(plt):
     def show(*args, **kwargs):
         for number in plt.get_fignums():
             buffer = io.BytesIO()
-            plt.figure(number).savefig(buffer, format="png", dpi=90, bbox_inches="tight")
+            # matplotlib 3.10 in Pyodide warns about its own text drawing while saving
+            # ("The x parameter as float was deprecated"). That is not about the learner's
+            # code, so only that one message is silenced, and only while the trainer saves.
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", message=r"The [xy] parameter as float was deprecated", category=DeprecationWarning)
+                plt.figure(number).savefig(buffer, format="png", dpi=90, bbox_inches="tight")
             if _active_session is not None:
                 _active_session.recorder.add("image", base64.b64encode(buffer.getvalue()).decode("ascii"))
         plt.close("all")
