@@ -12,7 +12,7 @@
 
 import { loadPyodide } from "https://cdn.jsdelivr.net/pyodide/v314.0.7/full/pyodide.mjs";
 
-const HARNESS_VERSION = "6";
+const HARNESS_VERSION = "7";
 let pyodide = null;
 let api = null;
 const downloaded = new Set();

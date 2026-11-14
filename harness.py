@@ -380,6 +380,26 @@ def _patch_pyplot(plt):
     plt.show = show
 
 
+PROGRAM_NAME = "main.py"   # what sys.argv[0] says while the learner's program runs
+
+
+class _MainModule(types.ModuleType):
+    """The learner's variables seen as the "__main__" module (for unittest.main)."""
+
+    def __init__(self, namespace):
+        super().__init__("__main__")
+        self._namespace = namespace
+
+    def __getattr__(self, name):
+        try:
+            return self._namespace[name]
+        except KeyError:
+            raise AttributeError(name) from None
+
+    def __dir__(self):
+        return list(self._namespace)
+
+
 class _Session:
     """One execution of learner code: its output, its typed answers, its variables."""
 
@@ -412,11 +432,16 @@ class _Session:
     def guarded(self, on_event=None):
         global _active_session
         saved = sys.stdout, sys.stderr, builtins.input, builtins.__import__, _active_session
+        saved_main, saved_argv = sys.modules.get("__main__"), sys.argv
         sys.stdout = _Stream(self, "out")
         sys.stderr = _Stream(self, "err")
         builtins.input = self._input
         builtins.__import__ = _watching_import
         _active_session = self
+        # unittest.main() looks for tests in the "__main__" module and reads its
+        # options from sys.argv: point both at the learner's program, as a laptop would.
+        sys.modules["__main__"] = _MainModule(self.namespace)
+        sys.argv = [PROGRAM_NAME]
         local_imports = _local_imports()
         local_imports.__enter__()
         sys.settrace(_make_tracer(time.monotonic() + TIME_LIMIT, on_event))
@@ -427,6 +452,11 @@ class _Session:
             _stop_halting()
             local_imports.__exit__(None, None, None)
             sys.stdout, sys.stderr, builtins.input, builtins.__import__, _active_session = saved
+            sys.argv = saved_argv
+            if saved_main is None:
+                sys.modules.pop("__main__", None)
+            else:
+                sys.modules["__main__"] = saved_main
 
     def execute(self, code, mode="exec", on_event=None, compiled=None, fresh=True,
                 files=None, filename=FILENAME):
@@ -761,8 +791,34 @@ class _TestTools:
         with open(path, encoding="utf-8") as handle:
             return handle.read()
 
+    def unit(self, name, **swap):
+        """Run the learner's unittest class `name` quietly and return its TestResult.
+
+        Each keyword swaps a name in the learner's program for the length of the run
+        (for example a broken copy of their function), to see whether their tests notice.
+        """
+        import unittest
+        cls = self.need(name, "class")
+        if not issubclass(cls, unittest.TestCase):
+            raise AssertionError(f"«{name}» should be a test class, made with «class {name}(unittest.TestCase):».")
+        namespace = self.session.namespace
+        missing = object()
+        saved = {key: namespace.get(key, missing) for key in swap}
+        namespace.update(swap)
+        try:
+            result = unittest.TestResult()
+            unittest.TestLoader().loadTestsFromTestCase(cls).run(result)
+        finally:
+            for key, value in saved.items():
+                if value is missing:
+                    namespace.pop(key, None)
+                else:
+                    namespace[key] = value
+        return result
+
     def env(self, out):
         tools = {
+            "unit": self.unit,
             "OUTPUT": out,
             "LINES": out.split("\n") if out else [],
             "CODE": self.code,
